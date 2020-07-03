@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const routes = require('./routes');
 
 //config database
-mongoose.connect('mongodb://localhost/hospital-db', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect('mongodb://localhost/hospital-db', { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
     .then(res => console.log('database conection OK'))
     .catch(err => { throw err });
 

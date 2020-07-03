@@ -20,19 +20,19 @@ routes.get('/', (req, res, next) => {
 
 routes.post('/', (req, res, next) => {
 
-    console.log( req.body);
+    console.log(req.body);
 
     const user = new UserModel(req.body);
     user.save()
-        .then(user => {
+        .then(userInserted => {
             res.status(201);
             res.json({
                 ok: true,
-                user,
+                user: userInserted,
             });
         })
         .catch(err => {
-            handleError(res, err, 'error creating user');
+            handleError(res, err, 'error creating user', 400);
         });
 });
 

@@ -1,7 +1,10 @@
 const express = require('express');
 const mongooseBcrypt = require('mongoose-bcrypt');
-const UserModel = require('../models/user.model');
+const jwt = require('jsonwebtoken');
 
+const UserModel = require('../models/user.model');
+const config = require('../config/config');
+const handleError = require('../utils/errors.util');
 
 const router = express.Router();
 
@@ -16,16 +19,17 @@ router.post('/login', (req, res, next) => {
     UserModel.findOne({ email })
         .then(user => {
             if (user) {
-                var valid = user.verifyPasswordSync(password);
-                if (valid) {
-                    res.json('Valid (sync)');
+                if (user.verifyPasswordSync(password)) {
+                    const payload = { email: user.email, name: user.name, roles: [user.role] };
+                    const accessToken = jwt.sign(payload, config.JWT_SECRET, { expiresIn: config.JWT_EXPIRE_IN });
+                    res.json({ ok: true, accessToken });
                 } else {
                     res.status(400);
-                    res.json({ ok: false, message: 'username or password incorrect' });
-                }    
+                    res.json({ ok: false, message: 'invalid credentials' });
+                }
             } else {
                 res.status(404);
-                res.json({ ok: false, message: 'username or password incorrect' });            
+                res.json({ ok: false, message: 'invalid credentials' });
             }
         })
         .catch(err => handleError(res, err, 'error authentication user', 500));

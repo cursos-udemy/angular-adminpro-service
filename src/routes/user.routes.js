@@ -1,7 +1,9 @@
 
 const express = require('express');
+
 const UserModel = require('../models/user.model');
 const handleError = require('../utils/errors.util');
+const auth = require('../middleware/authentication');
 
 const router = express.Router();
 
@@ -14,7 +16,7 @@ router.get('/', (req, res, next) => {
         .catch(err => handleError(res, err, 'error consulting users'));
 });
 
-router.post('/', (req, res, next) => {
+router.post('/', auth.validateToken, (req, res, next) => {
     const data = getUserDataForCreate(req);
     const user = new UserModel(data);
     user.save()
@@ -25,10 +27,9 @@ router.post('/', (req, res, next) => {
         .catch(err => handleError(res, err, 'error creating user', 400));
 });
 
-router.put('/:id', (req, res, next) => {
+router.put('/:id', auth.validateToken, (req, res, next) => {
     const id = req.params.id;
     const data = getUserDataForUpdate(req);
-    console.log('update: ', data);
     UserModel.findByIdAndUpdate(id, data, { new: true })
         .then(userUpdated => {
             if (userUpdated) {
@@ -45,7 +46,7 @@ router.put('/:id', (req, res, next) => {
         .catch(err => handleError(res, err, 'error updating user', 500));
 });
 
-router.delete('/:id', (req, res, next) => {
+router.delete('/:id', auth.validateToken, (req, res, next) => {
     const id = req.params.id;
     UserModel.findByIdAndDelete(id)
         .then(userDeleted => {

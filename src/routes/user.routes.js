@@ -1,4 +1,3 @@
-
 const express = require('express');
 
 const UserModel = require('../models/user.model');
@@ -9,10 +8,7 @@ const router = express.Router();
 
 router.get('/', (req, res, next) => {
     UserModel.find({}, 'name email role image')
-        .then(users => {
-            res.status(200);
-            res.json({ ok: true, users, });
-        })
+        .then(users => res.status(200).json(users))
         .catch(err => handleError(res, err, 'error consulting users'));
 });
 
@@ -21,8 +17,8 @@ router.post('/', auth.validateToken, (req, res, next) => {
     const user = new UserModel(data);
     user.save()
         .then(userInserted => {
-            res.status(201);
-            res.json({ ok: true, user: userInserted });
+            let user = filterPassword(userInserted);
+            res.status(201).json(user);
         })
         .catch(err => handleError(res, err, 'error creating user', 400));
 });
@@ -33,14 +29,10 @@ router.put('/:id', auth.validateToken, (req, res, next) => {
     UserModel.findByIdAndUpdate(id, data, { new: true })
         .then(userUpdated => {
             if (userUpdated) {
-                res.status(200);
-                let user = { ...userUpdated._doc };
-                delete user.password;
-                //let user = userUpdated
-                res.json({ ok: true, user });
+                let user = filterPassword(userUpdated);
+                res.status(200).json(user);
             } else {
-                res.status(400);
-                res.json({ ok: false, message: 'User not found', error: `user id '${id}' not found` });
+                res.status(400).json({ message: 'User not found', error: `user id '${id}' not found` });
             }
         })
         .catch(err => handleError(res, err, 'error updating user', 500));
@@ -50,17 +42,20 @@ router.delete('/:id', auth.validateToken, (req, res, next) => {
     const id = req.params.id;
     UserModel.findByIdAndDelete(id)
         .then(userDeleted => {
-            console.log(userDeleted);
             if (userDeleted) {
-                res.status(200);
-                res.json({ ok: true, message: 'user successfully removed' });
+                res.status(200).json({ message: 'user successfully removed' });
             } else {
-                res.status(400);
-                res.json({ ok: false, message: 'User not found', error: `user id '${id}' not found` });
+                res.status(400).json({ message: 'User not found', error: `user id '${id}' not found` });
             }
         })
-        .catch(err => handleError(res, err, 'error updating user', 500));
+        .catch(err => handleError(res, err, 'error removing user', 500));
 });
+
+function filterPassword(user) {
+    let filteredUser = { ...user._doc };
+    delete filteredUser.password;
+    return filteredUser;
+}
 
 function getUserDataForCreate(req) {
     const { email, password, name, image, role } = req.body;

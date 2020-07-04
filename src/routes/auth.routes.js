@@ -22,14 +22,14 @@ router.post('/login', (req, res, next) => {
                 if (user.verifyPasswordSync(password)) {
                     const payload = { email: user.email, name: user.name, roles: [user.role] };
                     const accessToken = jwt.sign(payload, config.JWT_SECRET, { expiresIn: config.JWT_EXPIRE_IN });
-                    res.json({ ok: true, accessToken });
+                    res.json({accessToken });
                 } else {
                     res.status(400);
-                    res.json({ ok: false, message: 'invalid credentials' });
+                    res.json({message: 'invalid credentials' });
                 }
             } else {
                 res.status(404);
-                res.json({ ok: false, message: 'invalid credentials' });
+                res.json({message: 'invalid credentials' });
             }
         })
         .catch(err => handleError(res, err, 'error authentication user', 500));

@@ -3,11 +3,20 @@ const express = require('express');
 const UserModel = require('../models/user.model');
 const handleError = require('../utils/errors.util');
 const auth = require('../middleware/authentication');
+const normalizePaging = require('../utils/normalizer')
 
 const router = express.Router();
 
 router.get('/', (req, res, next) => {
-    UserModel.find({}, 'name email role image')
+    const paging = normalizePaging(req);
+    const options = {
+        select: 'email name role image',
+        sort: { name: 1 },
+        //populate: 'author',        
+        page: paging.page,
+        limit: paging.limit
+    };
+    UserModel.paginate({}, options)
         .then(users => res.status(200).json(users))
         .catch(err => handleError(res, err, 'error consulting users'));
 });

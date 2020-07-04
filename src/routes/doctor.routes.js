@@ -3,20 +3,28 @@ const express = require('express');
 const DoctorModel = require('../models/doctor.model');
 const handleError = require('../utils/errors.util');
 const auth = require('../middleware/authentication');
+const normalizePaging = require('../utils/normalizer')
 
 const router = express.Router();
 
 router.get('/', (req, res, next) => {
-    DoctorModel.find()
-        .populate({ path: 'user', select: 'name email' })
-        .populate({ path: 'hospital', select: 'name' })
+    const paging = normalizePaging(req);
+    const options = {
+        sort: { name: 1 },
+        populate: { path: 'user', select: 'name email' },
+        populate: { path: 'hospital', select: 'name' },
+        page: paging.page,
+        limit: paging.limit
+    };
+
+    DoctorModel.paginate({}, options)
         .then(doctors => res.status(200).json(doctors))
         .catch(err => handleError(res, err, 'error consulting doctors', 500))
 });
 
 router.get('/:id', (req, res, next) => {
     const id = req.params.id;
-    DoctorModel.findByIdAndDelete(id)
+    DoctorModel.findById(id)
         .populate({ path: 'user', select: 'name email' })
         .populate({ path: 'hospital', select: 'name' })
         .then(doctor => {
@@ -26,7 +34,7 @@ router.get('/:id', (req, res, next) => {
                 res.status(404);
             }
         })
-        .catch(err => handleError(res, err, 'error consulting doctors', 500))
+        .catch(err => handleError(res, err, 'error consulting doctor', 500))
 });
 
 router.post('/', auth.validateToken, (req, res, next) => {

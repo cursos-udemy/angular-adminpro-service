@@ -3,13 +3,37 @@ const express = require('express');
 const HospitalModel = require('../models/hospital.model');
 const handleError = require('../utils/errors.util');
 const auth = require('../middleware/authentication');
+const normalizePaging = require('../utils/normalizer')
 
 const router = express.Router();
 
 router.get('/', (req, res, next) => {
-    HospitalModel.find().populate({ path: 'user', select: 'name email' })
+
+    const paging = normalizePaging(req);
+    const options = {
+        sort: { name: 1 },
+        populate: { path: 'user', select: 'name email' },
+        page: paging.page,
+        limit: paging.limit
+    };
+
+    HospitalModel.paginate({}, options)
         .then(hospitals => res.status(200).json(hospitals))
         .catch(err => handleError(res, err, 'error consulting hospitals', 500))
+});
+
+router.get('/:id', (req, res, next) => {
+    const id = req.params.id;
+    HospitalModel.findById(id)
+        .populate({ path: 'user', select: 'name email' })
+        .then(hospital => {
+            if (hospital) {
+                res.status(200).json(hospital)
+            } else {
+                res.status(404);
+            }
+        })
+        .catch(err => handleError(res, err, 'error consulting hospital', 500))
 });
 
 router.post('/', auth.validateToken, (req, res, next) => {

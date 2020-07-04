@@ -15,9 +15,9 @@ const userSchema = new mongoose.Schema(
         image: { type: String, required: false },
         role: { type: String, required: [true, 'role is required'], default: 'ROLE_USER', enum: allowedRoles, uppercase: true },
         googleAccount: { type: Boolean, required: false }
-    });
+    }, { collation: 'users' });
 
 userSchema.plugin(uniqueValidator, { message: 'There is already a registered user with the email account {VALUE}' });
 userSchema.plugin(mongooseBcrypt, { rounds: 8 });
 
-module.exports = mongoose.model('users', userSchema);
+module.exports = mongoose.model('User', userSchema);

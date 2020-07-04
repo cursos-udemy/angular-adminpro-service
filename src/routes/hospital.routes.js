@@ -7,7 +7,7 @@ const auth = require('../middleware/authentication');
 const router = express.Router();
 
 router.get('/', (req, res, next) => {
-    HospitalModel.find()
+    HospitalModel.find().populate({ path: 'user', select: 'name email' })
         .then(hospitals => res.status(200).json(hospitals))
         .catch(err => handleError(res, err, 'error consulting hospitals', 500))
 });

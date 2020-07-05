@@ -21,6 +21,12 @@ app.use(bodyParser.json())
 // config routes
 app.use('/api/v1', routes);
 
+const serveIndex = require('serve-index');
+const path = require('path');
+const directory = path.resolve( __dirname, '../');
+app.use(express.static(directory + '/'));
+app.use('/public', serveIndex(directory + '/public'));
+
 // start server
 app.listen(config.PORT, () => {
     console.log(`Admin Pro Service Listening on port ${config.PORT}`);

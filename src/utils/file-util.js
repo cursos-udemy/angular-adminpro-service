@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 
 function isImage(filename) {
     return (/\.(gif|jpe?g|tiff|png|webp|bmp)$/i).test(filename);
@@ -29,19 +30,26 @@ function saveImage(modelType, id, image) {
 }
 
 function deleteImage(modelType, model) {
-    const path = `./uploads/${modelType}/${model.image}`;
-    if (fs.existsSync(path)) {
-        fs.unlinkSync(path);
+    const imagePath = `./uploads/${modelType}/${model.image}`;
+    if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
     }
 }
 
-//var serveIndex = require('serve-index');
-//app.use(express.static(__dirname + '/'))
-//app.use('/uploads', serveIndex(__dirname + '/uploads'));
+
+function getImagePath(modelType,filename) {
+    const imagePath = path.resolve(__dirname, `../../uploads/${modelType}/${filename}`);
+    if (fs.existsSync(imagePath)){
+        return imagePath;
+    }
+    //return path.resolve(__dirname, '../assets/no-image.jpg');
+    return undefined;
+}
 
 module.exports = {
     isImage,
     getFileExtension,
     saveImage,
-    deleteImage
+    deleteImage,
+    getImagePath
 }

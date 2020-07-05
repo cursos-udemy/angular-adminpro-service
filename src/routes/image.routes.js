@@ -1,6 +1,5 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
-const fs = require('fs');
 
 const handleError = require('../utils/error-util');
 const fileUtil = require('../utils/file-util');
@@ -17,8 +16,7 @@ const router = express.Router();
 router.use(fileUpload());
 
 router.post('/upload/:modelType/:id', async (req, res) => {
-
-    const { modelType, id } = req.params;
+    let { modelType, id } = req.params;
     if (!MODEL_TYPES.includes(modelType.toLowerCase())) {
         return res.status(400).json({ error: 'invalid model type' });
     }
@@ -26,7 +24,7 @@ router.post('/upload/:modelType/:id', async (req, res) => {
     if (!req.files || Object.keys(req.files).length === 0) {
         return res.status(400).json({ error: 'No files were uploaded' });
     }
-
+    modelType = modelType.toLowerCase();
     const model = await findModel(modelType, id);
     if (!model) {
         return res.status(400).json({ error: 'invalid model id' });
@@ -46,6 +44,22 @@ router.post('/upload/:modelType/:id', async (req, res) => {
         })
         .catch(err => handleError(res, err, 'error upload image', 500))
 });
+
+router.get('/:modelType/:filename', (req, res) => {
+    let { modelType, filename } = req.params;
+    if (!MODEL_TYPES.includes(modelType.toLowerCase())) {
+        return res.status(400).json({ error: 'invalid model type' });
+    }
+    modelType = modelType.toLowerCase();
+    const imagePath = fileUtil.getImagePath(modelType, filename);
+    if (imagePath) {
+        res.sendFile(imagePath);
+    } else {
+        res.status(400).json({ error: 'image not found' });
+    }
+});
+
+
 
 function updateModel(model, id, filename) {
     const modelUpdate = { image: filename }

@@ -10,6 +10,11 @@ function findAll(paging) {
     return HospitalModel.paginate({}, options);
 }
 
+function findById(id) {
+    return HospitalModel.findById(id)
+        .populate({ path: 'user', select: 'name email' })
+}
+
 function searchByName(text, paging) {
     const options = {
         sort: { name: 1 },
@@ -21,10 +26,6 @@ function searchByName(text, paging) {
     return HospitalModel.paginate({ name: regex }, options);
 }
 
-function findById(id) {
-    return HospitalModel.findById(id)
-        .populate({ path: 'user', select: 'name email' })
-}
 
 function save(hospital) {
     const newHospital = new HospitalModel(hospital);

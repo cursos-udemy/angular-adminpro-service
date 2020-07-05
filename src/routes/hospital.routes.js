@@ -1,25 +1,25 @@
 const express = require('express');
 
-const handleError = require('../utils/errors.util');
+const handleError = require('../utils/error-util');
 const auth = require('../middleware/authentication');
 const normalizePaging = require('../utils/normalizer');
 const hospitalRepository = require('../repositories/hospital.repository');
 
 const router = express.Router();
 
-router.get('/', (req, res, next) => {
+router.get('/', (req, res) => {
     const paging = normalizePaging(req);
     hospitalRepository.findAll(paging)
-        .then(hospitals => res.status(200).json(hospitals))
+        .then(hospitals => res.json(hospitals))
         .catch(err => handleError(res, err, 'error consulting hospitals', 500))
 });
 
-router.get('/:id', (req, res, next) => {
+router.get('/:id', (req, res) => {
     const id = req.params.id;
     hospitalRepository.findById(id)
         .then(hospital => {
             if (hospital) {
-                res.status(200).json(hospital)
+                res.json(hospital)
             } else {
                 res.status(404);
             }
@@ -27,20 +27,20 @@ router.get('/:id', (req, res, next) => {
         .catch(err => handleError(res, err, 'error consulting hospital', 500))
 });
 
-router.post('/', auth.validateToken, (req, res, next) => {
+router.post('/', auth.validateToken, (req, res) => {
     const hospital = getHospitalData(req);
     hospitalRepository.save(hospital)
         .then(hospitalInserted => res.status(201).json(hospitalInserted))
         .catch(err => handleError(res, err, 'error creating hospital', 400));
 });
 
-router.put('/:id', auth.validateToken, (req, res, next) => {
+router.put('/:id', auth.validateToken, (req, res) => {
     const id = req.params.id;
     const data = getHospitalData(req);
     hospitalRepository.update(id, data)
         .then(hospitalUpdated => {
             if (hospitalUpdated) {
-                res.status(200).json(hospitalUpdated);
+                res.json(hospitalUpdated);
             } else {
                 res.status(400).json({ message: 'Hospital not found', error: `hospital id '${id}' not found` });
             }
@@ -48,12 +48,12 @@ router.put('/:id', auth.validateToken, (req, res, next) => {
         .catch(err => handleError(res, err, 'error updating hospital', 500));
 });
 
-router.delete('/:id', auth.validateToken, (req, res, next) => {
+router.delete('/:id', auth.validateToken, (req, res) => {
     const id = req.params.id;
     hospitalRepository.remove(id)
         .then(hospitalDeleted => {
             if (hospitalDeleted) {
-                res.status(200).json({ message: 'Hospital successfully removed' });
+                res.json({ message: 'Hospital successfully removed' });
             } else {
                 res.status(400).json({ message: 'Hospital not found', error: `hospital id '${id}' not found` });
             }

@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const UserModel = require('../models/user.model');
 const config = require('../config/config');
-const handleError = require('../utils/errors.util');
+const handleError = require('../utils/error-util');
 
 const router = express.Router();
 
@@ -14,7 +14,7 @@ router.use(function timeLog(req, res, next) {
     next();
 });
 
-router.post('/login', (req, res, next) => {
+router.post('/login', (req, res) => {
     const { email, password } = req.body;
     UserModel.findOne({ email })
         .then(user => {

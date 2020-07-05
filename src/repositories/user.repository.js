@@ -10,6 +10,10 @@ function findAll(paging) {
     return UserModel.paginate({}, options);
 }
 
+function findById(id) {
+    return UserModel.findById(id).select('email name role image');
+}
+
 function searchByName(text, paging) {
     const options = {
         select: 'email name role image',
@@ -51,6 +55,7 @@ function filterPassword(user) {
 
 module.exports = {
     findAll,
+    findById,
     searchByName,
     save,
     update,

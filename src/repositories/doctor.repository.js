@@ -11,6 +11,12 @@ function findAll(paging) {
     return DoctorModel.paginate({}, options);
 }
 
+function findById(id) {
+    return DoctorModel.findById(id)
+        .populate({ path: 'user', select: 'name email' })
+        .populate({ path: 'hospital', select: 'name' });
+}
+
 function searchByName(text, paging) {
     const options = {
         sort: { name: 1 },
@@ -21,12 +27,6 @@ function searchByName(text, paging) {
     };
     const regex = new RegExp(text.trim(), 'i');
     return DoctorModel.paginate({ name: regex }, options);
-}
-
-function findById(id) {
-    return DoctorModel.findById(id)
-        .populate({ path: 'user', select: 'name email' })
-        .populate({ path: 'hospital', select: 'name' });
 }
 
 function save(doctor) {

@@ -6,8 +6,9 @@ const config = require('./config/config');
 const routes = require('./routes');
 
 //config database
-mongoose.connect(config.MONGO_DATABASE_URI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
-    .then(res => console.log('database conection OK'))
+const dbOptions = { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false };
+mongoose.connect(config.MONGO_DATABASE_URI, dbOptions)
+    .then(res => console.log(`mongoose version: ${mongoose.version}`))
     .catch(err => { throw err });
 
 //initialize express

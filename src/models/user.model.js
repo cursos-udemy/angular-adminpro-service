@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema(
         name: { type: String, required: [true, 'name is required'], trim: true, index: true },
         image: { type: String, required: false },
         role: { type: String, required: [true, 'role is required'], default: 'ROLE_USER', enum: allowedRoles, uppercase: true },
-        googleAccount: { type: Boolean, required: false }
+        googleAccount: { type: Boolean, required: false, default: false }
     }, { collation: 'users' });
 
 userSchema.plugin(uniqueValidator, { message: 'There is already a registered user with the email account {VALUE}' });

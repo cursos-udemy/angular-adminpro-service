@@ -2,11 +2,15 @@ const express = require('express');
 const mongooseBcrypt = require('mongoose-bcrypt');
 const jwt = require('jsonwebtoken');
 
+const { OAuth2Client } = require('google-auth-library');
+
 const UserModel = require('../models/user.model');
 const config = require('../config/config');
 const handleError = require('../utils/error-util');
+const userRepository = require('../repositories/user.repository');
 
 const router = express.Router();
+const client = new OAuth2Client(config.GOOGLE_CLIENT_ID);
 
 // middleware that is specific to this router
 router.use(function timeLog(req, res, next) {
@@ -16,23 +20,30 @@ router.use(function timeLog(req, res, next) {
 
 router.post('/login', (req, res) => {
     const { email, password } = req.body;
-    UserModel.findOne({ email })
-        .then(user => {
-            if (user) {
-                if (user.verifyPasswordSync(password)) {
-                    const payload = { email: user.email, name: user.name, roles: [user.role] };
-                    const accessToken = jwt.sign(payload, config.JWT_SECRET, { expiresIn: config.JWT_EXPIRE_IN });
-                    res.json({accessToken });
-                } else {
-                    res.status(400);
-                    res.json({message: 'invalid credentials' });
-                }
-            } else {
-                res.status(404);
-                res.json({message: 'invalid credentials' });
-            }
-        })
-        .catch(err => handleError(res, err, 'error authentication user', 500));
-})
+    userRepository.authenticate(email, password)
+        .then(user => res.json({ accessToken: generateToken(user) }))
+        .catch(err => res.status(403).json({ message: 'invalid credentials' }));
+});
+
+router.post('/login/google', (req, res) => {
+    const { token } = req.body;
+    verify(token)
+        .then(googleUser => userRepository.checkGoogleAccount(googleUser))
+        .then(user => res.json({ accessToken: generateToken(user) }))
+        .catch(err => res.status(403).json({ message: 'invalid token', err }));
+});
+
+async function verify(token) {
+    const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: config.GOOGLE_CLIENT_ID,
+    });
+    return ticket.getPayload();
+}
+
+function generateToken(user) {
+    const payload = { email: user.email, name: user.name, roles: [user.role] };
+    return jwt.sign(payload, config.JWT_SECRET, { expiresIn: config.JWT_EXPIRE_IN });
+}
 
 module.exports = router

@@ -26,19 +26,19 @@ function searchByName(text, paging) {
     return UserModel.paginate(conditions, options);
 }
 
-function save(user) {
+async function save(user) {
     const newUser = new UserModel(user);
     return newUser.save()
         .then(userInserted => {
-            if (userInserted) return filterPassword(userInserted);
+            if (userInserted) return Promise.resolve(filterPassword(userInserted));
             return userInserted;
         });
 }
 
-function update(id, user) {
+async function update(id, user) {
     return UserModel.findByIdAndUpdate(id, user, { new: true })
         .then(userUpdated => {
-            if (userUpdated) return filterPassword(userUpdated);
+            if (userUpdated) return Promise.resolve(filterPassword(userUpdated));
             return userUpdated;
         });
 }
@@ -47,10 +47,41 @@ function remove(id) {
     return UserModel.findByIdAndDelete(id);
 }
 
+async function authenticate(email, password) {
+    return UserModel.findOne({ email })
+        .then(user => {
+            if (user && !user.googleAccount && user.verifyPasswordSync(password)) {
+                return Promise.resolve(filterPassword(user));
+            }
+            return Promise.reject('invalid credentials')
+        })
+        .catch(err => handleError(res, err, 'error authentication user', 500));
+}
+
+async function checkGoogleAccount(googleUser) {
+    return UserModel.findOne({ email: googleUser.email })
+        .then(user => {
+            if (!user) return save(getUserFormGoogleAccount(googleUser));
+            if (user.googleAccount) return Promise.resolve(filterPassword(user));
+            return Promise.reject('there is already an account created with your email address')
+        })
+        .catch(err => handleError(res, err, 'error checking account user', 500));
+}
+
 function filterPassword(user) {
     let filteredUser = { ...user._doc };
     delete filteredUser.password;
-    return Promise.resolve(filteredUser);
+    return filteredUser;
+}
+
+function getUserFormGoogleAccount(googleAccount) {
+    return {
+        name: googleAccount.name,
+        email: googleAccount.email,
+        image: googleAccount.picture,
+        password: ';)',
+        googleAccount: true,
+    };
 }
 
 module.exports = {
@@ -59,5 +90,7 @@ module.exports = {
     searchByName,
     save,
     update,
-    remove
+    remove,
+    authenticate,
+    checkGoogleAccount
 }

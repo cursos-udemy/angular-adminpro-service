@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
         .catch(err => handleError(res, err, 'error consulting users'));
 });
 
-router.post('/', auth.validateToken, (req, res) => {
+router.post('/signup', (req, res) => {
     const user = getUserDataForCreate(req);
     userRepository.save(user)
         .then(userInserted => res.status(201).json(userInserted))

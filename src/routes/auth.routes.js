@@ -21,7 +21,7 @@ router.use(function timeLog(req, res, next) {
 router.post('/login', (req, res) => {
     const { email, password } = req.body;
     userRepository.authenticate(email, password)
-        .then(user => res.json({ accessToken: generateToken(user) }))
+        .then(user => res.json({ accessToken: generateToken(user), userId: user._id, name: user.name }))
         .catch(err => res.status(403).json({ message: 'invalid credentials' }));
 });
 
@@ -29,8 +29,12 @@ router.post('/login/google', (req, res) => {
     const { token } = req.body;
     verify(token)
         .then(googleUser => userRepository.checkGoogleAccount(googleUser))
-        .then(user => res.json({ accessToken: generateToken(user) }))
+        .then(user => res.json(generateAuthenticateResponse(user)))
         .catch(err => res.status(403).json({ message: 'invalid token', err }));
+});
+
+router.post('/logout', (req, res) => {
+    res.json('ok');
 });
 
 async function verify(token) {
@@ -44,6 +48,10 @@ async function verify(token) {
 function generateToken(user) {
     const payload = { email: user.email, name: user.name, roles: [user.role] };
     return jwt.sign(payload, config.JWT_SECRET, { expiresIn: config.JWT_EXPIRE_IN });
+}
+
+function generateAuthenticateResponse(userAuthenticated) {
+    return { accessToken: generateToken(userAuthenticated), userId: userAuthenticated._id, name: userAuthenticated.name }
 }
 
 module.exports = router

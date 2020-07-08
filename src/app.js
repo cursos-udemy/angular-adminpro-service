@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 const config = require('./config/config');
 const routes = require('./routes');
@@ -14,6 +15,9 @@ mongoose.connect(config.MONGO_DATABASE_URI, dbOptions)
 //initialize express
 const app = express();
 
+//config CORS
+app.use(cors());
+
 //config body parser
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
@@ -23,7 +27,7 @@ app.use('/api/v1', routes);
 
 const serveIndex = require('serve-index');
 const path = require('path');
-const directory = path.resolve( __dirname, '../');
+const directory = path.resolve(__dirname, '../');
 app.use(express.static(directory + '/'));
 app.use('/public', serveIndex(directory + '/public'));
 

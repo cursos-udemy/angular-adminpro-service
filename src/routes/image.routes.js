@@ -33,14 +33,14 @@ router.post('/upload/:modelType/:id', async (req, res) => {
     // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
     const { image } = req.files;
     if (!fileUtil.isImage(image.name)) {
-        return res.status(400).json({ error: 'must upload an image with extension [gif|jpe?g|tiff|png|webp|bmp]' });
+        return res.status(400).json({ error: 'must upload an image with extension [gif|jpe?g|tiff|png|webp|bmp|svg]' });
     }
 
     fileUtil.deleteImage(modelType, model);
     fileUtil.saveImage(modelType, id, image)
         .then(filename => updateModel(modelType, id, filename))
         .then(modelUpdated => {
-            res.json({ message: 'image uploads successfully' })
+            res.json({ message: 'image uploads successfully', modelUpdated})
         })
         .catch(err => handleError(res, err, 'error upload image', 500))
 });
@@ -58,8 +58,6 @@ router.get('/:modelType/:filename', (req, res) => {
         res.status(400).json({ error: 'image not found' });
     }
 });
-
-
 
 function updateModel(model, id, filename) {
     const modelUpdate = { image: filename }

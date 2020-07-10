@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 function isImage(filename) {
-    return (/\.(gif|jpe?g|tiff|png|webp|bmp)$/i).test(filename);
+    return (/\.(gif|jpe?g|tiff|png|webp|bmp|svg)$/i).test(filename);
 }
 
 function getFileExtension(filename) {

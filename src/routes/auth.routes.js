@@ -21,7 +21,7 @@ router.use(function timeLog(req, res, next) {
 router.post('/login', (req, res) => {
     const { email, password } = req.body;
     userRepository.authenticate(email, password)
-        .then(user => res.json({ accessToken: generateToken(user), userId: user._id, name: user.name }))
+        .then(user => res.json(generateAuthenticateResponse(user)))
         .catch(err => res.status(403).json({ message: 'invalid credentials' }));
 });
 
@@ -51,7 +51,7 @@ function generateToken(user) {
 }
 
 function generateAuthenticateResponse(userAuthenticated) {
-    return { accessToken: generateToken(userAuthenticated), userId: userAuthenticated._id, name: userAuthenticated.name }
+    return { accessToken: generateToken(userAuthenticated), user: userAuthenticated }
 }
 
 module.exports = router

@@ -36,10 +36,20 @@ async function save(user) {
 }
 
 async function update(id, user) {
-    return UserModel.findByIdAndUpdate(id, user, { new: true })
-        .then(userUpdated => {
-            if (userUpdated) return Promise.resolve(filterPassword(userUpdated));
-            return userUpdated;
+    return UserModel.findById(id)
+        .then(u => {
+            if (u) {
+                if (u.googleAccount) {
+                    delete user.email;
+                    user.password = ';-)';
+                }
+                return UserModel.findByIdAndUpdate(id, user, { new: true })
+                    .then(userUpdated => {
+                        if (userUpdated) return Promise.resolve(filterPassword(userUpdated));
+                        return userUpdated;
+                    });
+            }
+            return u;
         });
 }
 

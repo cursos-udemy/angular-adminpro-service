@@ -46,7 +46,7 @@ async function verify(token) {
 }
 
 function generateToken(user) {
-    const payload = { email: user.email, name: user.name, roles: [user.role] };
+    const payload = { id: user._id, email: user.email, name: user.name, roles: [user.role] };
     return jwt.sign(payload, config.JWT_SECRET, { expiresIn: config.JWT_EXPIRE_IN });
 }
 

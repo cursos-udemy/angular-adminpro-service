@@ -1,8 +1,9 @@
 const UserModel = require('../models/user.model');
 
+const USER_FIELD_SELECT = 'email name role image googleAccount';
 function findAll(paging) {
     const options = {
-        select: 'email name role image',
+        select: USER_FIELD_SELECT,
         sort: { name: 1 },
         page: paging.page || 1,
         limit: paging.limit || 1
@@ -11,12 +12,12 @@ function findAll(paging) {
 }
 
 function findById(id) {
-    return UserModel.findById(id).select('email name role image');
+    return UserModel.findById(id).select(USER_FIELD_SELECT);
 }
 
 function searchByName(text, paging) {
     const options = {
-        select: 'email name role image',
+        select: USER_FIELD_SELECT,
         sort: { name: 1 },
         page: paging.page || 1,
         limit: paging.limit || 1

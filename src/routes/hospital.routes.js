@@ -62,11 +62,11 @@ router.delete('/:id', auth.validateToken, (req, res) => {
 });
 
 function getHospitalData(req) {
-    const { name, image, user } = req.body;
-    const data = {};
+    const { name, image} = req.body;
+    const data = {user: req.user._id};
     if (name) data.name = name;
     if (image) data.image = image;
-    if (user) data.user = user;
+    
     return data;
 }
 

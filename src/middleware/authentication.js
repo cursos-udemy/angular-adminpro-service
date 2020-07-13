@@ -19,7 +19,6 @@ module.exports.validateToken = function (req, res, next) {
             .then(u => {
                 if (!u) return res.status(401).json({ message: 'Corrupt token' });
                 req.user = u;
-                console.log('token OK!', u.email)
                 next();
             }).catch(err => res.status(401).json({ message: 'Corrupt token' }))
     });

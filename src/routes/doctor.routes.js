@@ -29,7 +29,7 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', auth.validateToken, (req, res) => {
-    const doctor = getDotorData(req);
+    const doctor = getDoctorData(req);
     doctorRepository.save(doctor)
         .then(doctorInserted => res.status(201).json(doctorInserted))
         .catch(err => handleError(res, err, 'error creating doctor', 400));
@@ -37,7 +37,7 @@ router.post('/', auth.validateToken, (req, res) => {
 
 router.put('/:id', auth.validateToken, (req, res) => {
     const id = req.params.id;
-    const doctor = getDotorData(req);
+    const doctor = getDoctorData(req);
     doctorRepository.update(id, doctor)
         .then(doctorUpdated => {
             if (doctorUpdated) {
@@ -62,12 +62,11 @@ router.delete('/:id', auth.validateToken, (req, res) => {
         .catch(err => handleError(res, err, 'error removing hospital', 500));
 });
 
-function getDotorData(req) {
-    const { name, image, user, hospital } = req.body;
-    const data = {};
+function getDoctorData(req) {
+    const { name, image, hospital } = req.body;
+    const data = { user: req.user._id };
     if (name) data.name = name;
     if (image) data.image = image;
-    if (user) data.user = user;
     if (hospital) data.hospital = hospital;
     return data;
 }

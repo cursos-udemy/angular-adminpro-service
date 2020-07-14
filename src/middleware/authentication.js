@@ -23,3 +23,17 @@ module.exports.validateToken = function (req, res, next) {
             }).catch(err => res.status(401).json({ message: 'Corrupt token' }))
     });
 }
+
+//middleware: validate role ADMIN_ROLE
+module.exports.hasRoleAdmin = function (req, res, next) {
+    const { role } = req.user;
+    if (role !== 'ROLE_ADMIN') return res.status(403).json({ message: 'Invalid token' });
+    next();
+}
+
+module.exports.doesNotOperateOnItself = function (req, res, next) {
+    const { id } = req.user;
+    if (req.user.id === id) return res.status(400).json({ message: 'It cannot operate on itself' });
+    next();
+}
+

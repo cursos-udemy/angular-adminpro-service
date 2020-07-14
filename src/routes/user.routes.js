@@ -40,12 +40,9 @@ router.put('/profile/:id', auth.validateToken, (req, res) => {
         .catch(err => handleError(res, err, 'error updating user', 500));
 });
 
-router.put('/admin/:id', auth.validateToken, (req, res) => {
+router.put('/admin/:id', [auth.validateToken, auth.hasRoleAdmin, auth.doesNotOperateOnItself], (req, res) => {
     const id = req.params.id; 
     console.log('update role() -> id: ', id);
-    if (req.user.id === id) return res.status(400).json({ message: 'It cannot updated itself'});
-    if (req.user.role !== 'ROLE_ADMIN') return res.status(401).json({ message: 'You do not have the privileges to execute this action'}); 
-
     const user = getUserDataForUpdate(req);
     userRepository.update(id, user)
         .then(userUpdated => {
@@ -58,12 +55,9 @@ router.put('/admin/:id', auth.validateToken, (req, res) => {
         .catch(err => handleError(res, err, 'error updating user', 500));
 });
 
-router.delete('/:id', auth.validateToken, async (req, res) => {
+router.delete('/:id', [auth.validateToken, auth.hasRoleAdmin, auth.doesNotOperateOnItself], async (req, res) => {
     const id = req.params.id;
     console.log('deleteUser() -> id: ', id);
-    if (req.user.id === id) return res.status(400).json({ message: 'It cannot remove itself'});
-    if (req.user.role !== 'ROLE_ADMIN') return res.status(401).json({ message: 'You do not have the privileges to execute this action'}); 
-
     userRepository.remove(id)
         .then(userDeleted => {
             if (userDeleted) {
@@ -76,13 +70,13 @@ router.delete('/:id', auth.validateToken, async (req, res) => {
 });
 
 function getUserDataForCreate(req) {
-    const { email, password, name, image, role } = req.body;
+    const { email, password, name, image } = req.body;
     const data = {};
     if (email) data.email = email;
     if (password) data.password = password;
     if (name) data.name = name;
     if (image) data.image = image;
-    if (role) data.role = role;
+    //if (role) data.role = role;
     return data;
 }
 

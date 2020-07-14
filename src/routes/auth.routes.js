@@ -51,7 +51,39 @@ function generateToken(user) {
 }
 
 function generateAuthenticateResponse(userAuthenticated) {
-    return { accessToken: generateToken(userAuthenticated), user: userAuthenticated }
+    return { accessToken: generateToken(userAuthenticated), user: userAuthenticated, menu: getMenuByRole(userAuthenticated.role) };
 }
+
+function getMenuByRole(role) {
+    let menu = [
+        {
+          title: 'Principal',
+          icon: 'mdi mdi-gauge',
+          subMenu: [
+            {title: 'Dashboard', url: '/dashboard'},
+            {title: 'Progress', url: '/progress'},
+            {title: 'Chart', url: '/chart'},
+            {title: 'Promises', url: '/promises'},
+            {title: 'Rxjs', url: '/rxjs'},
+          ]
+        },
+        {
+          title: 'Administration',
+          icon: 'mdi mdi-folder-lock-open',
+          subMenu: [
+            //{title: 'Users', url: '/users'},
+            {title: 'Hospitals', url: '/hospitals'},
+            {title: 'Doctors', url: '/doctors'},
+          ]
+        }
+      ];
+    
+      if (role === 'ROLE_ADMIN'){
+          menu[1].subMenu.unshift({title: 'Users', url: '/users'});
+      }
+
+      return menu;
+}
+
 
 module.exports = router

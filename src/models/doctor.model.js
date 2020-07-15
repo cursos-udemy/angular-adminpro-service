@@ -8,6 +8,13 @@ const doctorSchema = mongoose.Schema({
     hospital: { type: mongoose.Schema.Types.ObjectId, ref: 'Hospital', required: [true, 'hospital is required'] }
 }, { collection: 'doctors' });
 
+
+doctorSchema.method('toJSON', function () {
+    const { __v, ...object } = this.toObject();
+    return { ...object }
+});
+
+
 doctorSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model('Doctor', doctorSchema);

@@ -4,13 +4,11 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const config = require('./config/config');
+const {dbConnection} = require('./database.config')
 const routes = require('./routes');
 
 //config database
-const dbOptions = { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false };
-mongoose.connect(config.MONGO_DATABASE_URI, dbOptions)
-    .then(res => console.log(`mongoose version: ${mongoose.version}`))
-    .catch(err => { throw err });
+dbConnection();
 
 //initialize express
 const app = express();
@@ -21,6 +19,7 @@ app.use(cors());
 //config body parser
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
+//app.use(express.json())
 
 // config routes
 app.use('/api/v1', routes);

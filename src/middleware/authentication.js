@@ -37,3 +37,9 @@ module.exports.doesNotOperateOnItself = function (req, res, next) {
     next();
 }
 
+
+module.exports.isTheUserOwner = function (req, res, next) {
+    const { id } = req.user;
+    if (req.user.id !== id) return res.status(401).json({ message: 'You do not have the privileges to execute this action' });
+    next();
+}

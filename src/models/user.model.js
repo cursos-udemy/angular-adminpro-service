@@ -18,8 +18,16 @@ const userSchema = new mongoose.Schema(
         googleAccount: { type: Boolean, required: false, default: false }
     }, { collation: 'users' });
 
+
+
+userSchema.method('toJSON', function () {
+    const { __v, ...object } = this.toObject();
+    return { ...object }
+});
+
 userSchema.plugin(uniqueValidator, { message: 'There is already a registered user with the email account {VALUE}' });
 userSchema.plugin(mongooseBcrypt, { rounds: 8 });
 userSchema.plugin(mongoosePaginate);
+
 
 module.exports = mongoose.model('User', userSchema);

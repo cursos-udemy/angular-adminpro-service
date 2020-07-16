@@ -4,7 +4,7 @@ const normalizePaging = require('../utils/normalizer');
 
 const findAll = async (req, res) => {
     const paging = normalizePaging(req);
-    console.log('user.findAll() -> paging: ', paging);
+    console.log('user.findAll -> paging: ', paging);
     userRepository.findAll(paging)
         .then(users => res.json(users))
         .catch(err => handleError(res, err, 'error consulting users'));
@@ -12,29 +12,29 @@ const findAll = async (req, res) => {
 
 const create = async (req, res) => {
     const user = getUserDataForCreate(req);
-    console.log('user.create() -> mail ', user.email);
+    console.log('user.create -> mail ', user.email);
     userRepository.save(user)
         .then(userInserted => res.status(201).json(userInserted))
         .catch(err => handleError(res, err, 'error creating user', 400));
 }
 
 const updateProfile = async (req, res) => {
-    const id = req.params.id;
-    console.log('user.updateProfile() -> id: ', id);
+    const { id } = req.params;
+    console.log('user.updateProfile -> id: ', id);
     //if (req.user.id !== id) return res.status(401).json({ message: 'You do not have the privileges to execute this action' });
     const user = getUserDataForUpdateProfile(req);
     update(id, user, res);
 }
 
 const updateAdmin = async (req, res) => {
-    const id = req.params.id;
+    const { id } = req.params;
     console.log('user.updateRole() -> id: ', id);
     const user = getUserDataForUpdateAdmin(req);
     update(id, user, res)
 }
 
 const remove = async (req, res) => {
-    const id = req.params.id;
+    const { id } = req.params;
     console.log('user.delete() -> id: ', id);
     userRepository.remove(id)
         .then(userDeleted => {

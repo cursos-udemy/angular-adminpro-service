@@ -1,74 +1,50 @@
 const express = require('express');
 
-const DoctorModel = require('../models/doctor.model');
-const handleError = require('../utils/error-util');
 const auth = require('../middleware/authentication');
-const normalizePaging = require('../utils/normalizer');
-const doctorRepository = require('../repositories/doctor.repository');
+const { findAll, findById, create, update, remove } = require('../controllers/doctor.controller');
+const { body, param } = require('express-validator');
+const { validateRequest } = require('../middleware/request-validators')
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-    const paging = normalizePaging(req);
-    doctorRepository.findAll(paging)
-        .then(doctors => res.json(doctors))
-        .catch(err => handleError(res, err, 'error consulting doctors', 500))
-});
+router.get('/', auth.validateToken, findAll);
 
-router.get('/:id', (req, res) => {
-    const id = req.params.id;
-    doctorRepository.findById(id)
-        .then(doctor => {
-            if (doctor) {
-                res.json(doctor)
-            } else {
-                res.status(404);
-            }
-        })
-        .catch(err => handleError(res, err, 'error consulting doctor', 500))
-});
+router.get('/:id',
+    [
+        auth.validateToken,
+        param('id', 'id invalid').isMongoId()
+    ],
+    findById);
 
-router.post('/', auth.validateToken, (req, res) => {
-    const doctor = getDoctorData(req);
-    doctorRepository.save(doctor)
-        .then(doctorInserted => res.status(201).json(doctorInserted))
-        .catch(err => handleError(res, err, 'error creating doctor', 400));
-});
+router.post('/',
+    [
+        auth.validateToken,
+        body('name', 'name is required').notEmpty(),
+        body('user', 'user is required').notEmpty(),
+        body('user', 'user invalid').isMongoId(),
+        body('hospital', 'hospital is required').notEmpty(),
+        body('hospital', 'hospital invalid').isMongoId(),
+        validateRequest
+    ]
+    , create);
 
-router.put('/:id', auth.validateToken, (req, res) => {
-    const id = req.params.id;
-    const doctor = getDoctorData(req);
-    doctorRepository.update(id, doctor)
-        .then(doctorUpdated => {
-            if (doctorUpdated) {
-                res.json(doctorUpdated);
-            } else {
-                res.status(400).json({ message: 'Doctor not found', error: `Doctor id '${id}' not found` });
-            }
-        })
-        .catch(err => handleError(res, err, 'error updating doctor', 500));
-});
+router.put('/:id',
+    [
+        auth.validateToken,
+        param('id', 'id invalid').isMongoId(),
+        body('user', 'user invalid').optional().isMongoId(),
+        body('hospital', 'hospital invalid').optional().isMongoId(),
+        validateRequest
+    ]
+    , update);
 
-router.delete('/:id', auth.validateToken, (req, res) => {
-    const id = req.params.id;
-    doctorRepository.remove(id)
-        .then(doctorDeleted => {
-            if (doctorDeleted) {
-                res.json({ message: 'Doctor successfully removed' });
-            } else {
-                res.status(400).json({ message: 'Doctor not found', error: `Doctor id '${id}' not found` });
-            }
-        })
-        .catch(err => handleError(res, err, 'error removing hospital', 500));
-});
-
-function getDoctorData(req) {
-    const { name, image, hospital } = req.body;
-    const data = { user: req.user._id };
-    if (name) data.name = name;
-    if (image) data.image = image;
-    if (hospital) data.hospital = hospital;
-    return data;
-}
+router.delete('/:id',
+    [
+        auth.validateToken,
+        auth.hasRoleAdmin,
+        param('id', 'id invalid').isMongoId(),
+        validateRequest
+    ]
+    , remove);
 
 module.exports = router;

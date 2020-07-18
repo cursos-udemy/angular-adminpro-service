@@ -12,7 +12,11 @@ const findAll = async (req, res) => {
 
 const create = async (req, res) => {
     const user = getUserDataForCreate(req);
+
     console.log('user.create -> mail ', user.email);
+    const userRegistered = await userRepository.findByEmail(user.email);
+    if (userRegistered) return res.status(400).json({message: 'There is already a registered user with the email account'})
+
     userRepository.save(user)
         .then(userInserted => res.status(201).json(userInserted))
         .catch(err => handleError(res, err, 'error creating user', 400));
@@ -30,7 +34,7 @@ const updateAdmin = async (req, res) => {
     const { id } = req.params;
     console.log('user.updateRole() -> id: ', id);
     const user = getUserDataForUpdateAdmin(req);
-    update(id, user, res)
+    update(id+'1111', user, res)
 }
 
 const remove = async (req, res) => {

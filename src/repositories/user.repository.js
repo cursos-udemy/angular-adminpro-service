@@ -15,6 +15,10 @@ function findById(id) {
     return UserModel.findById(id).select(USER_FIELD_SELECT);
 }
 
+function findByEmail(email) {
+    return UserModel.findOne({email});
+}
+
 function searchByName(text, paging) {
     const options = {
         select: USER_FIELD_SELECT,
@@ -98,6 +102,7 @@ function getUserFormGoogleAccount(googleAccount) {
 module.exports = {
     findAll,
     findById,
+    findByEmail,
     searchByName,
     save,
     update,

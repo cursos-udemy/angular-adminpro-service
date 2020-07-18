@@ -32,14 +32,13 @@ module.exports.hasRoleAdmin = function (req, res, next) {
 }
 
 module.exports.doesNotOperateOnItself = function (req, res, next) {
-    const { id } = req.user;
+    const { id } = req.body;
     if (req.user.id === id) return res.status(400).json({ message: 'It cannot operate on itself' });
     next();
 }
 
-
 module.exports.isTheUserOwner = function (req, res, next) {
-    const { id } = req.user;
+    const { id } = req.body;
     if (req.user.id !== id) return res.status(401).json({ message: 'You do not have the privileges to execute this action' });
     next();
 }

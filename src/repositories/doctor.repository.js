@@ -4,7 +4,7 @@ function findAll(paging) {
     const options = {
         sort: { name: 1 },
         populate: { path: 'user', select: 'name email' },
-        populate: { path: 'hospital', select: 'name' },
+        populate: { path: 'hospital', select: 'name image' },
         page: paging.page || 1,
         limit: paging.limit || 1
     };
@@ -14,14 +14,14 @@ function findAll(paging) {
 function findById(id) {
     return DoctorModel.findById(id)
         .populate({ path: 'user', select: 'name email' })
-        .populate({ path: 'hospital', select: 'name' });
+        .populate({ path: 'hospital', select: 'name image' });
 }
 
 function searchByName(text, paging) {
     const options = {
         sort: { name: 1 },
         populate: { path: 'user', select: 'name email' },
-        populate: { path: 'hospital', select: 'name' },
+        populate: { path: 'hospital', select: 'name image' },
         page: paging.page,
         limit: paging.limit
     };

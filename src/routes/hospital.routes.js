@@ -15,8 +15,6 @@ router.post('/',
     [
         auth.validateToken,
         body('name', 'name is required').notEmpty(),
-        body('user', 'user is required').notEmpty(),
-        body('user', 'user invalid').isMongoId(),
         validateRequest
     ]
     , create);
@@ -24,8 +22,8 @@ router.post('/',
 router.put('/:id',
     [
         auth.validateToken,
-        param('id', 'id invalid').optional().isMongoId(),
-        body('user', 'user invalid').optional().isMongoId(),
+        param('id', 'id invalid').isMongoId(),
+        body('name', 'name is required').notEmpty(),
         validateRequest
     ],
     update);
@@ -33,7 +31,7 @@ router.put('/:id',
 router.delete('/:id',
     [
         auth.validateToken,
-        param('id', 'id invalid').optional().isMongoId(),
+        param('id', 'id invalid').isMongoId(),
         validateRequest
     ],
     remove);

@@ -20,8 +20,6 @@ router.post('/',
     [
         auth.validateToken,
         body('name', 'name is required').notEmpty(),
-        body('user', 'user is required').notEmpty(),
-        body('user', 'user invalid').isMongoId(),
         body('hospital', 'hospital is required').notEmpty(),
         body('hospital', 'hospital invalid').isMongoId(),
         validateRequest
@@ -32,7 +30,7 @@ router.put('/:id',
     [
         auth.validateToken,
         param('id', 'id invalid').isMongoId(),
-        body('user', 'user invalid').optional().isMongoId(),
+        body('name', 'name is required').optional().notEmpty(),
         body('hospital', 'hospital invalid').optional().isMongoId(),
         validateRequest
     ]

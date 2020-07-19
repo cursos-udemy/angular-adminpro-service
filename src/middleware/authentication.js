@@ -15,7 +15,7 @@ module.exports.validateToken = function (req, res, next) {
 
     jwt.verify(token, config.JWT_SECRET, (err, decoded) => {
         if (err) return res.status(401).json({ message: 'Invalid token' });
-        const user = userRepository.findById(decoded.id)
+        userRepository.findById(decoded.id)
             .then(u => {
                 if (!u) return res.status(401).json({ message: 'Corrupt token' });
                 req.user = u;
@@ -32,13 +32,13 @@ module.exports.hasRoleAdmin = function (req, res, next) {
 }
 
 module.exports.doesNotOperateOnItself = function (req, res, next) {
-    const { id } = req.body;
-    if (req.user.id === id) return res.status(400).json({ message: 'It cannot operate on itself' });
+    const { id } = req.params;
+    if (req.user._id.toString() === id.toString()) return res.status(400).json({ message: 'It cannot operate on itself' });
     next();
 }
 
 module.exports.isTheUserOwner = function (req, res, next) {
-    const { id } = req.body;
-    if (req.user.id !== id) return res.status(401).json({ message: 'You do not have the privileges to execute this action' });
+    const { id } = req.params;
+    if (req.user._id.toString() !== id.toString()) return res.status(401).json({ message: 'You do not have the privileges to execute this action' });
     next();
 }

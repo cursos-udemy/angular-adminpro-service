@@ -25,7 +25,6 @@ const create = async (req, res) => {
 const updateProfile = async (req, res) => {
     const { id } = req.params;
     console.log('user.updateProfile -> id: ', id);
-    //if (req.user.id !== id) return res.status(401).json({ message: 'You do not have the privileges to execute this action' });
     const user = getUserDataForUpdateProfile(req);
     update(id, user, res);
 }
@@ -34,7 +33,7 @@ const updateAdmin = async (req, res) => {
     const { id } = req.params;
     console.log('user.updateRole() -> id: ', id);
     const user = getUserDataForUpdateAdmin(req);
-    update(id+'1111', user, res)
+    update(id, user, res)
 }
 
 const remove = async (req, res) => {
@@ -60,7 +59,12 @@ function update(id, user, res) {
                 res.status(400).json({ message: 'User not found', error: `user id '${id}' not found` });
             }
         })
-        .catch(err => handleError(res, err, 'error updating user', 500));
+        .catch(err => {
+            if (err.type === 'valid') {
+                return res.status(400).json({ message: err.message});
+            }
+            return handleError(res, err, 'error updating user', 500)}
+        );
 }
 
 function getUserDataForCreate(req) {
@@ -74,18 +78,18 @@ function getUserDataForCreate(req) {
 }
 
 function getUserDataForUpdateProfile(req) {
-    const { email, name, image, role } = req.body;
+    const { email, name, image } = req.body;
     const data = {};
     if (email) data.email = email;
     if (name) data.name = name;
     if (image) data.image = image;
-    if (role) data.role = role;
     return data;
 }
 
 function getUserDataForUpdateAdmin(req) {
-    const { image, role } = req.body;
+    const { image, role, email } = req.body;
     const data = {};
+    if (email) data.email = email;
     if (image) data.image = image;
     if (role) data.role = role;
     return data;

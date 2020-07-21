@@ -1,11 +1,9 @@
 const express = require('express');
-//const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const path = require('path');
 
 const config = require('./config/config');
-const {dbConnection} = require('./database.config')
+const { dbConnection } = require('./database.config')
 const routes = require('./routes');
 
 //config database
@@ -25,6 +23,10 @@ app.use(bodyParser.json())
 // config routes
 app.use('/api/v1', routes);
 
+//app.get('*', (req, res) => {
+//    res.sendFile(path.resolve(__dirname, '../public/index.html'));
+//});
+
 //const serveIndex = require('serve-index');
 //const path = require('path');
 //const directory = path.resolve(__dirname, '../');
@@ -32,8 +34,7 @@ app.use('/api/v1', routes);
 //app.use('/public', serveIndex(directory + '/public'));
 
 // Directorio público
-app.use( express.static('public') );
-
+app.use(express.static('public'));
 
 // start server
 app.listen(config.PORT, () => {
